@@ -8,7 +8,7 @@ import java.io.*;
  * @author: zhangshaolin
  * @create: 2018-09-28 12:23
  **/
-public class FIleStreamTest {
+public class FileStreamTest {
 
     public static void main(String[] args) {
         try {
