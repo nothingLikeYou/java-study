@@ -13,6 +13,7 @@ public class FileTest {
 
     public static void main(String[] args) throws IOException {
 
+        // TODO: 18-10-9 部分方法不熟悉 待练习
         /*********************构造函数测试**************************/
         //根据路径名初始化File实例,如果按照路径文件/目录不存在,依然会构造出File对象,只是File.exited()为false,即文件不存在
         File file1 = new File("/tmp/user");
@@ -92,6 +93,72 @@ public class FileTest {
         boolean hidden = file1.isHidden();
         System.out.println("是隐藏文件吗? " + hidden);
 
+        //不知道啥意思哦?
+        long lastModified = file1.lastModified();
+        System.out.println("" + lastModified);
+
+        //获取文件长度
+        long length = file1.length();
+        System.out.println("文件长度: " + length);
+
+        //创建新文件 文件不存在 则创建 已存在则忽略 返回false
+        File file4 = new File("/tmp/user/newFile.txt");
+        boolean newFile = file4.createNewFile();
+        System.out.println("创建新文件: " + newFile);
+
+        //删除文件
+        //boolean delete = file4.delete();
+        //System.out.println("删除新增的文件: " + delete);
+
+        //删除?
+        //file4.deleteOnExit();
+
+        //文件名称列表(包含目录名称) 文件名包含扩展名
+        File file5 = new File("/tmp");
+        String[] names = file5.list();
+        System.out.println("文件列表: " + names.toString());
+
+        //文件列表(包含目录名称)
+        File[] files = file5.listFiles();
+        System.out.println(files.length);
+
+        //创建目录
+        File file6 = new File("/tmp/user/newDir");
+        boolean mkdir = file6.mkdir();
+        System.out.println("创建新目录: " + mkdir);
+
+        //创建新目录?
+        boolean mkdirs = file6.mkdirs();
+        System.out.println("创建新目录? " + mkdirs);
+
+        //重命名文件
+        boolean renameTo = file6.renameTo(new File("/tmp/user/renameTo"));
+        System.out.println("重命名文件: " + renameTo);
+
+        //设置文件为只读
+        boolean readOnly = file4.setReadOnly();
+        System.out.println("设置文件为只读: " + readOnly);
+
+        //是否可执行
+        File file7 = new File("/tmp/user/test.sh");
+        boolean canExecute = file7.canExecute();
+        System.out.println("是否可执行: " + canExecute);
+
+        //根盘符文件列表
+        File[] listRoots = File.listRoots();
+        System.out.println("根目录文件列表: " + listRoots);
+
+        //目录总大小
+        long totalSpace = file5.getTotalSpace();
+        System.out.println("目录总大小: " + totalSpace);
+
+        //剩余空间大小
+        long freeSpace = file5.getFreeSpace();
+        System.out.println("剩余空间大小: " + freeSpace);
+
+        //可用空间大小
+        long usableSpace = file5.getUsableSpace();
+        System.out.println("可用空间大小: " + usableSpace);
 
         /*********************成员方法测试**************************/
     }
