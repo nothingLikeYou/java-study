@@ -84,3 +84,62 @@ public void flush() throws IOException
 
 将缓冲而未实际写的数据进行实际写入,比如,在 BufferedOutputStream 中,调用flush 方法会将其缓冲区的内容写到其装饰的流中,并调用该流的flush 方法..基类 OutputStream 没有缓冲,flush 方法代码为空,
 
+你可能会认为 FileOutputStream 调用 flush 会强制确保数据保存到硬盘上,但实际上不是这样,FileOutputStream 没有缓冲,没有重写flush方法,调用flush方法没有任何效果,数据只是传递给了操作系统,但操作系统什么时候保存到硬盘上,可以调用FIleOuputStream中的特有方法.
+
+**关闭输出流**
+
+close 方法一般会在flush 方法之后调用,用来释放流占用的系统资源,也是一般放在 finally 语句内调用.
+
+
+
+### FileOutputStream
+
+文件写入流 OutputStream 抽象类的具体实现.
+
+#### 构造方法
+
+```java
+//构造方法主要逻辑,其他的构造方法内部实际上都是调用此方法
+public FileOutputStream(File file, boolean append);
+//内部调用 FileOutputStream(File file, boolean append) 方法,append默认为false
+public FileOutputStream(String name) throws FileNotFoundException;
+//内部调用 FileOutputStream(File file, boolean append) 方法 append默认为false
+public FileOutputStream(File file);
+//内部调用 FileOutputStream(File file, boolean append) 方法
+public FileOutputStream(String name, boolean append)
+```
+
+**说明:**
+
+- File 类型的参数 file 和字符串的类型的参数 name 都表示文件路径,路径可以是绝对路径,也可以是相对路径
+- 如果文件已存在,append参数指定是追加还是覆盖,true为追加,false覆盖
+- new FileOutputStream 对象实际上会打开文件,操作系统会分配相关资源,如果当前用户没有写权限,会抛出SecurityException
+- 如果指定的文件是一个目录,或者由于其他原因不能打开文件,会抛出 FileNotFoundException 
+
+
+
+#### 例子1:
+
+字符串以字节形式写入文件,,若文件不存在,则新建
+
+```java
+  OutputStream outputStream = null;
+        try {
+            outputStream = new FileOutputStream("/tmp/user/hello.txt");
+            String data = "hello, 123, 小林";
+            byte[] bytes = data.getBytes(Charset.forName("UTF-8"));
+            outputStream.write(bytes);
+            outputStream.flush();
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                outputStream.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+```
+
