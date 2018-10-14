@@ -94,7 +94,7 @@ close 方法一般会在flush 方法之后调用,用来释放流占用的系统�
 
 ### FileOutputStream
 
-文件写入流 OutputStream 抽象类的具体实现.
+文件写入流, OutputStream 抽象类的具体实现.
 
 #### 构造方法
 
@@ -146,6 +146,103 @@ public FileOutputStream(String name, boolean append)
             } catch (IOException e) {
                 e.printStackTrace();
             }
+        }
+```
+
+
+
+### FileInputStream
+
+文件读取流, InputStream 抽象类的具体实现
+
+#### 构造方法
+
+```java
+//构造方法主要罗杰,其他构造方法内部实际调用该方法
+public FileInputStream(File file) throws FileNotFoundException;
+//构造方法重载 内部调用 public FileInputStream(File file) 
+public FileInputStream(String name) throws FileNotFoundException;
+```
+
+
+
+**说明:**
+
+- 参数与FileOutputStream类似,可以是文件路径或文件对象,但必须是一个已存在的文件,不能是目录
+- new 一个FileInputStream对象实际上也会打开文件,操作系统会分配相关资源
+- 如果文件不存在,抛出FileNotFondException,如果当前用户没有读权限,则抛出SecurityException
+
+
+
+#### 例子1:
+
+将上面的文件数据读取到内存,并输出到控制台
+
+```java
+     InputStream inputStream;
+        try {
+            //初始化文件读取流
+            inputStream = new FileInputStream("/tmp/user/hello.txt");
+            //初始化字节数组 存放读取的字节数
+            byte[] buf = new byte[1024];
+            //读取文件字节数据 放入buf 返回实际读取的字节数
+            int bytesRead = inputStream.read(buf);
+            //转化为string 输出
+            String data = new String(buf, 0, bytesRead, "UTF-8");
+            System.out.println(data);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+```
+
+#### 例子2:
+
+例子1有以下缺点:
+
+- 必须确保一次read就读取全部数据
+- 必须确保数据不超过1024
+
+基于此,改造成逐个字节读取,直到文件结束
+
+```java
+     InputStream inputStream;
+        try {
+            //初始化文件读取流
+            inputStream = new FileInputStream("/tmp/user/hello.txt");
+            //初始化字节数组 存放读取的字节数
+            byte[] buf = new byte[1024];
+            int b = -1;
+            int byteRead = 0;
+            while ((b = inputStream.read()) != -1){
+                buf[byteRead++] = ((byte) b);
+            }
+            String data = new String(buf, Charset.forName("UTF-8"));
+            System.out.println(data);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+```
+
+#### 例子3:
+
+在没有缓冲的情况下逐个字节读取性能很低,可以使用批量读入且确保读到结尾
+
+```java
+     InputStream inputStream;
+        try {
+            //初始化文件读取流
+            inputStream = new FileInputStream("/tmp/user/hello.txt");
+            //初始化字节数组 存放读取的字节数
+            byte[] buf = new byte[1024];
+            int off = 0;
+            int byteRead = 0;
+            while ((byteRead = inputStream.read(buf, off, 1024 - off)) != -1) {
+                off += byteRead;
+            }
+            String data = new String(buf, 0, off, Charset.forName("UTF-8"));
+            System.out.println(data);
+        } catch (IOException e) {
+            e.printStackTrace();
         }
 ```
 
