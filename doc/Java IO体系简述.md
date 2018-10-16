@@ -449,3 +449,30 @@ String readUTF() throws IOException;
     }
 ```
 
+
+
+### BufferedInputStream
+
+FileInputStream/FileOutputStream 是没有缓冲的,按单个字节读写时性能比较低,虽然可以按字节数组读取以提高性能,但有时必须按字节读写,怎么解决这个问题呢? 方法是将文件流包装到缓冲流中, BufferedInputStream 内部有个字节数组作为缓冲区,读取时,先从这个缓冲区读,缓冲区读完了再调用包装的流读
+
+#### 构造方法
+
+```java
+public BufferedInputStream(InputStream in, int size);
+public BufferedInputStream(InputStream in);
+```
+
+size 表示缓冲区大小,如果没有,默认值为8192, 除了提高性能,BufferedInputStream也支持mark/reset 可以重复读取. 与BufferedInputStream类似,BufferedOutputStream 的构造方法也有两个,默认缓冲区也是8192,它的flush方法会将缓冲区的内容写到包装的流中.
+
+在使用 FileInputStream/FileOutputStream 时,应该几乎总是在它的外面包上对应的缓冲类,如下所示:
+
+```java
+InputStream inputStream = new BufferedInputStream(new FileInputStream("/tmp/student.dat/"));
+        OutputStream outputStream = new BufferedOutputStream(new FileOutputStream("/tmp/student.dat/"));
+```
+
+```java
+DataOutputStream outputStream = new DataOutputStream(new BufferedOutputStream(new FileOutputStream("/tmp/student.dat")));
+        DataInputStream inputStream = new DataInputStream(new BufferedInputStream(new FileInputStream("/tmp/student.dat")));
+```
+
