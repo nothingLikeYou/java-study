@@ -246,3 +246,82 @@ public FileInputStream(String name) throws FileNotFoundException;
         }
 ```
 
+
+
+### ByteArrayOutputStream
+
+#### 构造方法
+
+```java
+public ByteArrayOutputStream(int size);
+public ByteArrayOutputStream();
+```
+
+输出目标是一个 byte 数组,这个数组的长度是根据数据内荣动态扩展的,第一个构造方法中 size 是初始的数组大小,如果没有指定,则默认长度为32,,如果数组大小不够,会进行动态扩容,扩容策略为指数扩展,每次至少增加一倍.
+
+
+
+#### 常用方法
+
+```java
+//将数据转换为字节数组
+public synchronized byte toByteArray()[];
+//将数据转换为字符串 使用系统默认编码
+public synchronized String toString();
+//将数据转换为字符串 使用自定义编码
+public synchronized String toString(String charsetName);
+//将数据写到另一个OutputStream
+public synchronized void writeTo(OutputStream out);
+//返回当前写入的字节个数
+public synchronized int size();
+//重置字节个数为0,reset后,可以重用分配的数组
+public synchronized void reset();
+```
+
+
+
+#### 方法改进
+
+使用 ByteArrayOutputStream 改进读文件代码,确保将所有文件内容读入,读入的数据先写入  ByteArrayOutputStream,读完后,再调用其toString 方法获取完整数据
+
+```java
+     InputStream inputStream = null;
+        try {
+            inputStream = new FileInputStream("/tmp/hello.txt");
+            ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+            byte[] buf = new byte[1024];
+            int byteRead = 0;
+            while ((byteRead = inputStream.read(buf)) != -1) {
+                outputStream.write(buf, 0, byteRead);
+            }
+            String data = outputStream.toString("UTF-8");
+            System.out.println(data);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }finally {
+            try {
+                inputStream.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+```
+
+
+
+### ByteArrayInputStream
+
+ByteArrayInputStream 将 byte 数组包装为一个输入流,是一种适配器模式
+
+
+
+#### 构造方法
+
+```java
+public ByteArrayInputStream(byte buf[], int offset, int length);
+public ByteArrayInputStream(byte buf[]);
+```
+
+以buf中 offset 开始的 length 个字节为背后的数据, ByteArrayInputStream 的所有数据都在内存,支持 mark/reset重复读取.
+
+为什么要将byte数组转换为InputStream呢 这与容器类中要将数组,单个元素转换为容器接口的原因是类似的,有很多代码是以 InputStream/OutputStream 为参数构建的,它们构成了一个协作体系,将byte数组转换为InputStream可以方便的参与这种体系,复用代码.
