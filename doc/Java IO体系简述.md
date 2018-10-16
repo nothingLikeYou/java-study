@@ -325,3 +325,127 @@ public ByteArrayInputStream(byte buf[]);
 以buf中 offset 开始的 length 个字节为背后的数据, ByteArrayInputStream 的所有数据都在内存,支持 mark/reset重复读取.
 
 为什么要将byte数组转换为InputStream呢 这与容器类中要将数组,单个元素转换为容器接口的原因是类似的,有很多代码是以 InputStream/OutputStream 为参数构建的,它们构成了一个协作体系,将byte数组转换为InputStream可以方便的参与这种体系,复用代码.
+
+
+
+### DataOutputStream
+
+继承子装饰类 FilterOutputStream,实现 DataOutput 接口,可以以各种基本类型和字符串写入数据 FilterOutputStream 继承自 OutputStream,,
+
+#### 构造方法
+
+```java
+public DataOutputStream(OutputStream out);
+```
+
+接收 一个  OutputStream 基本上把所有的操作都代理给了它.
+
+#### 常用部分方法
+
+```java
+void writeBoolean(boolean v) throws IOException;
+void writeInt(int v) throws IOException;
+void writeUTF(String s) throws IOException;
+```
+
+在写入时，DataOutputStream 会将这些类型的数据转换为其对应的二进制字节，比如：
+
+- writeBoolean：写入一个字节，如果值为ｔｒｕｅ,则写入１，否则０．
+- writeInt:写入4个字节,最高位字节先写入,最低位字节最后写入
+- writeUTF:将字符串的UTF8 编码字节写入,这个编码格式与标准的UTF-8编码略有不同,不过,不必关心这个细节
+
+#### 例子
+
+保存一个学生列表到文件中
+
+```java
+public class Student {
+
+    private String name;
+
+    private int age;
+
+    private double score;
+}
+
+```
+
+```java
+ public static void main(String[] args) {
+
+        //学生列表
+        List<Student> students = Arrays.asList(new Student[]{new Student("张三", 18, 80.9d), new Student("李四", 17, 67.5d)});
+
+        writeStudents(students);
+    }
+
+    public static void writeStudents(List<Student> students) {
+        DataOutputStream outputStream = null;
+        try {
+            outputStream = new DataOutputStream(new FileOutputStream("student.dat"));
+            outputStream.writeInt(students.size());
+            for (Student student : students) {
+                outputStream.writeUTF(student.getName());
+                outputStream.writeInt(student.getAge());
+                outputStream.writeDouble(student.getScore());
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                outputStream.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+```
+
+
+
+### DataInputStream
+
+继承子装饰类 FilterIntputStream,实现 DataInput 接口,可以以各种基本类型和字符串写入数据 FilterInputStream 继承自 OutputStream,,
+
+#### 构造方法
+
+```java
+public DataInputStream(InputStream in)
+```
+
+接收 一个  InputStream 基本上把所有的操作都代理给了它.
+
+#### 常用部分方法
+
+```java
+boolean readBoolean() throws IOException;
+int readInt() throws IOException;
+String readUTF() throws IOException;
+```
+
+读取时,会先按字节读进来,然后转换为对应的类型.
+
+#### 例子
+
+```java
+ public static List<Student> readStudents() {
+        DataInputStream inputStream = null;
+        List<Student> students = null;
+        try {
+            inputStream = new DataInputStream(new FileInputStream("/tmp/student.dat"));
+            int size = inputStream.readInt();
+            students = new ArrayList<>(size);
+            for (int i = 0; i < size; i++) {
+                String name = inputStream.readUTF();
+                int age = inputStream.readInt();
+                double score = inputStream.readDouble();
+                Student student = new Student(name, age, score);
+                students.add(student);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return students;
+    }
+```
+
